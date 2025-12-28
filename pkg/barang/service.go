@@ -3,8 +3,6 @@ package barang
 import (
 	"context"
 	"fmt"
-	"sort"
-	"strconv"
 
 	"RTLS_API/pkg/models"
 
@@ -28,20 +26,22 @@ func (s *Service) GenerateDeviceID() string {
 	reusable := meta.Child("reusable_ids")
 	counter := meta.Child("device_counter")
 
-	var reusableIDs map[string]string
-	reusable.Get(s.Ctx, &reusableIDs)
+	var reused string
 
-	if len(reusableIDs) > 0 {
-		keys := make([]int, 0)
-		for k := range reusableIDs {
-			i, _ := strconv.Atoi(k)
-			keys = append(keys, i)
+	reusable.Transaction(s.Ctx, func(t db.TransactionNode) (interface{}, error) {
+		var queue []string
+		_ = t.Unmarshal(&queue)
+
+		if len(queue) == 0 {
+			return queue, nil
 		}
-		sort.Ints(keys)
 
-		id := reusableIDs[strconv.Itoa(keys[0])]
-		reusable.Child(strconv.Itoa(keys[0])).Delete(s.Ctx)
-		return id
+		reused = queue[0]
+		return queue[1:], nil
+	})
+
+	if reused != "" {
+		return reused
 	}
 
 	var current int
@@ -53,6 +53,20 @@ func (s *Service) GenerateDeviceID() string {
 	})
 
 	return fmt.Sprintf("BOX-%03d", current)
+}
+
+func (s *Service) CreateBarang(input models.InputTransaction) (models.OutputTransaction, error) {
+	id := s.GenerateDeviceID()
+
+	ref := s.DB.NewRef("Barang").Child(id)
+	if err := ref.Set(s.Ctx, input); err != nil {
+		return models.OutputTransaction{}, err
+	}
+
+	return models.OutputTransaction{
+		DeviceID:         id,
+		InputTransaction: input,
+	}, nil
 }
 
 func (s *Service) GetBarang(deviceID string) ([]models.OutputTransaction, error) {

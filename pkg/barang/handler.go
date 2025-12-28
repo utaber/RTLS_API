@@ -37,23 +37,15 @@ func (h *Handler) Create(c *gin.Context) {
 		return
 	}
 
-	id := h.Service.GenerateDeviceID()
-
-	if err := h.Service.DB.
-		NewRef("Barang").
-		Child(id).
-		Set(h.Service.Ctx, input); err != nil {
-
+	result, err := h.Service.CreateBarang(input)
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"detail": err.Error(),
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, models.OutputTransaction{
-		DeviceID:         id,
-		InputTransaction: input,
-	})
+	c.JSON(http.StatusCreated, result)
 }
 
 func (h *Handler) Update(c *gin.Context) {
