@@ -1,4 +1,4 @@
-main.go.bak
-service-account-key-test.json
-service-account-key.json
+*.bak
+*.json
 .env
+*.txt
