@@ -37,10 +37,8 @@ func (h *Handler) Create(c *gin.Context) {
 		return
 	}
 
-	// ✅ generate ID lewat service
 	id := h.Service.GenerateDeviceID()
 
-	// (opsional tapi dianjurkan)
 	if err := h.Service.DB.
 		NewRef("Barang").
 		Child(id).
@@ -80,8 +78,6 @@ func (h *Handler) Update(c *gin.Context) {
 	})
 }
 
-/* ===== DELETE ===== */
-
 func (h *Handler) Delete(c *gin.Context) {
 	id := c.Param("device_id")
 
@@ -93,5 +89,18 @@ func (h *Handler) Delete(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"message":   "Barang berhasil dihapus",
 		"device_id": id,
+	})
+}
+
+func (h *Handler) ResetSystem(c *gin.Context) {
+	if err := h.Service.ResetSystem(); err != nil {
+		c.JSON(404, gin.H{
+			"detail": "system sudah kosong / ter-reset",
+		})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"message": "system berhasil di-reset (barang + counter dihapus)",
 	})
 }

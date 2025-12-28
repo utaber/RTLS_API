@@ -76,8 +76,6 @@ func (s *Service) GetBarang(deviceID string) ([]models.OutputTransaction, error)
 	return result, nil
 }
 
-/* ===== UPDATE ===== */
-
 func (s *Service) UpdateBarang(id string, payload models.UpdateTransaction) (map[string]interface{}, error) {
 	ref := s.DB.NewRef("Barang").Child(id)
 
@@ -96,8 +94,6 @@ func (s *Service) UpdateBarang(id string, payload models.UpdateTransaction) (map
 
 	return update, nil
 }
-
-/* ===== DELETE ===== */
 
 func (s *Service) DeleteBarang(id string) error {
 	ref := s.DB.NewRef("Barang").Child(id)
@@ -119,6 +115,35 @@ func (s *Service) DeleteBarang(id string) error {
 
 	s.DB.NewRef("meta/reusable_ids").Transaction(s.Ctx, queue)
 	s.DB.NewRef("meta/reusable_ids_esp").Transaction(s.Ctx, queue)
+
+	return nil
+}
+
+func (s *Service) ResetSystem() error {
+	barangRef := s.DB.NewRef("Barang")
+	metaRef := s.DB.NewRef("meta")
+
+	var barangCheck interface{}
+	var metaCheck interface{}
+
+	_ = barangRef.Get(s.Ctx, &barangCheck)
+	_ = metaRef.Get(s.Ctx, &metaCheck)
+
+	if barangCheck == nil && metaCheck == nil {
+		return fmt.Errorf("system already reset")
+	}
+
+	if barangCheck != nil {
+		if err := barangRef.Delete(s.Ctx); err != nil {
+			return err
+		}
+	}
+
+	if metaCheck != nil {
+		if err := metaRef.Delete(s.Ctx); err != nil {
+			return err
+		}
+	}
 
 	return nil
 }

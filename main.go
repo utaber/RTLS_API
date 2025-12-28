@@ -43,6 +43,7 @@ func main() {
 	r.POST("/barang", authMW, barangHandler.Create)
 	r.PATCH("/barang/:device_id", authMW, barangHandler.Update)
 	r.DELETE("/barang/:device_id", authMW, barangHandler.Delete)
+	r.DELETE("/meta", authMW, barangHandler.ResetSystem)
 
 	r.Run(":8000")
 }
