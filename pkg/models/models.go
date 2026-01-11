@@ -22,3 +22,8 @@ type OutputTransaction struct {
 	DeviceID string `json:"device_id"`
 	InputTransaction
 }
+
+type LoginRequest struct {
+	Email    string `json:"email" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}

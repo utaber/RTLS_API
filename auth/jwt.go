@@ -16,9 +16,9 @@ func NewJWTService(secret string, algo jwt.SigningMethod, expire time.Duration) 
 	return &JWTService{secret, algo, expire}
 }
 
-func (j *JWTService) GenerateToken() (string, error) {
+func (j *JWTService) GenerateToken(username string) (string, error) {
 	claims := jwt.MapClaims{
-		"sub": "admin",
+		"sub": username,
 		"exp": time.Now().Add(j.Expire).Unix(),
 	}
 

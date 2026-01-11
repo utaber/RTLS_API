@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -17,11 +18,16 @@ func (j *JWTService) Middleware() gin.HandlerFunc {
 			return
 		}
 
-		_, err := jwt.Parse(parts[1], func(t *jwt.Token) (interface{}, error) {
+		claims := jwt.MapClaims{}
+
+		token, err := jwt.ParseWithClaims(parts[1], claims, func(t *jwt.Token) (interface{}, error) {
+			if t.Method.Alg() != j.Algo.Alg() {
+				return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
+			}
 			return []byte(j.Secret), nil
 		})
 
-		if err != nil {
+		if err != nil || !token.Valid {
 			c.AbortWithStatusJSON(401, gin.H{"detail": "Invalid token"})
 			return
 		}

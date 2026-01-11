@@ -3,10 +3,11 @@ package main
 import (
 	"context"
 
+	"RTLS_API/auth"
 	"RTLS_API/config"
-	"RTLS_API/pkg/auth"
 	"RTLS_API/pkg/barang"
 	"RTLS_API/pkg/firebase"
+	"RTLS_API/pkg/user"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,9 +18,13 @@ func main() {
 
 	dbClient := firebase.NewDatabase(
 		ctx,
-		"service-account-key-test.json",
+		"service-account-key.json",
 		cfg.DBURL,
 	)
+
+	firebaseAdapter := firebase.NewAdapter(dbClient)
+
+	userService := user.NewService(ctx, firebaseAdapter)
 
 	jwtService := auth.NewJWTService(
 		cfg.JWTSecret,
@@ -27,15 +32,13 @@ func main() {
 		cfg.JWTExpire,
 	)
 
+	authHandler := auth.NewHandler(jwtService, userService)
 	barangService := barang.NewService(ctx, dbClient)
 	barangHandler := barang.NewHandler(barangService)
 
 	r := gin.Default()
 
-	r.POST("/auth/token", func(c *gin.Context) {
-		token, _ := jwtService.GenerateToken()
-		c.JSON(200, gin.H{"access_token": token})
-	})
+	r.POST("/auth/login", authHandler.Login)
 
 	authMW := jwtService.Middleware()
 

@@ -24,10 +24,15 @@ func Load() *Config {
 		log.Fatal("JWT_SECRET_KEY is not set")
 	}
 
+	dburl := os.Getenv("DB_URL")
+	if secret == "" {
+		log.Fatal("DB_URL is not set")
+	}
+
 	return &Config{
 		JWTSecret: secret,
 		JWTAlgo:   jwt.SigningMethodHS256,
 		JWTExpire: time.Hour,
-		DBURL:     "https://simple-app-3ed62-default-rtdb.asia-southeast1.firebasedatabase.app/",
+		DBURL:     dburl,
 	}
 }
