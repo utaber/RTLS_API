@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  backend:
+    build: .
+    container_name: rtls_backend_api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - GIN_MODE=release
+      
+      - JWT_SECRET_KEY=rahasia_super_kuat_ganti_ini
+      - DB_URL=https://rtlsrks513-tes-default-rtdb.asia-southeast1.firebasedatabase.app
+      
+      - GOOGLE_APPLICATION_CREDENTIALS=/root/service-account-key.json
+    volumes:
+      - ./service-account-key.json:/root/service-account-key.json:ro
