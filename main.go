@@ -18,7 +18,7 @@ func main() {
 
 	dbClient := firebase.NewDatabase(
 		ctx,
-		"service-account-key.json",
+		cfg.DBKEY,
 		cfg.DBURL,
 	)
 

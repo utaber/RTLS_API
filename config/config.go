@@ -14,6 +14,7 @@ type Config struct {
 	JWTAlgo   jwt.SigningMethod
 	JWTExpire time.Duration
 	DBURL     string
+	DBKEY     string
 }
 
 func Load() *Config {
@@ -29,10 +30,16 @@ func Load() *Config {
 		log.Fatal("DB_URL is not set")
 	}
 
+	dbkey := os.Getenv("DB_KEY")
+	if secret == "" {
+		log.Fatal("DB_KEY is not set")
+	}
+
 	return &Config{
 		JWTSecret: secret,
 		JWTAlgo:   jwt.SigningMethodHS256,
 		JWTExpire: time.Hour,
 		DBURL:     dburl,
+		DBKEY:     dbkey,
 	}
 }

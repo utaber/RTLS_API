@@ -4,10 +4,11 @@
 **penggunaan**
 - konfigurasikan `.env` nya seperti berikut:
 ```env
-JWT_SECRET_KEY="JWT KEY"
-DB_URL="DB URL"
+JWT_SECRET_KEY="YOUR JWT KEY"
+DB_URL="YOUR DB URL"
+DB_KEY="YOUR DB KEY FILENAME"
 ```
-- jalankan dengan go
+- jalankan perintah berikut
 ```bash
- go run main.go
+ docker-compose up --build
  ```
